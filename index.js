@@ -1,11 +1,13 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require('path')
-const hbs=require('hbs')
 
 const app = express();
-app.use(express.json())
-app.use(express.urlencoded({ extended: false }))
+var multer = require('multer')
+var multParse = multer()
+var bodyParser = require('body-parser'); 
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }))
 
 const tempelatePath = path.join(__dirname, './Temp')
 // const publicPath = path.join(__dirname, '../public') //css purpose
@@ -52,16 +54,17 @@ app.get('/',(rq,res,next)=>{
   res.render('template')
 })
 
-app.post('/add',async(req,res)=>{
+app.post('/add',multParse.none(),async(req,res)=>{
   const checking = await CollectionDataSchemaformat.findOne({ name: req.body.name })
   if (checking?.name === req.body.name) {
     res.send('username exist')
+    console.log('userexist');
   } else {
     await CollectionDataSchemaformat.insertMany({ name: req.body.name, msg: req.body.msg })
     res.status(200).json('Successfully')
+    console.log('success');
   }
 })
-
 
 app.listen(3000, () => {
   console.log('app is running');
